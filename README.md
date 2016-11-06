@@ -92,6 +92,8 @@ The actions supported as of today:
 * clearqueue
 * sleep (values in seconds)
 * linein (only analog linein, not PLAYBAR yet)
+* clip (announce custom mp3 clip)
+* clipall
 
 State
 -----
@@ -294,6 +296,8 @@ Available options are:
 * https: use https which requires a key and certificate or pfx file
 * auth: require basic auth credentials which requires a username and password
 * announceVolume: the percentual volume use when invoking say/sayall without any volume parameter
+* presetDir: absolute path to look for presets (folder must exist!)
+
 
 Example:
 ```json
@@ -317,7 +321,10 @@ Example:
 	  "pandora": {
 	    "username": "your-pandora-account-email-address",
 	    "password": "your-pandora-password"
-	  }
+	  },
+	  "library": { 
+	    "randomQueueLimit": 50 
+	  } 
 	}
 ```
 
@@ -421,6 +428,23 @@ Selects line-in for zone Office belongs to, with source TV Room.
 
 If you want to to isolate a player and then select line-in, use the `/Office/leave` first.
 
+Clip
+----
+
+Like "Say" but instead of a phrase, reference a custom track from the `static/clips` folder. There is a sample file available (courtesy of https://www.sound-ideas.com/).
+
+    /{Room name}/clip/{filename}[/{announce volume}]
+    /clipall/{filename}[/{announce volume}]
+
+Examples:
+
+    clipall/sample_clip.mp3
+    clipall/sample_clip.mp3/80
+    /Office/clip/sample_clip.mp3
+    /Office/clip/sample_clip.mp3/30
+
+*Pro-tip: announce your arrival with an epic theme song!*
+
 Spotify and Apple Music (Experimental)
 ----------------------
 
@@ -505,7 +529,8 @@ Search terms for station for library: not supported
 
 Specifying just an artist name will load the queue with up to 50 of the artist's most popular songs
 Specifying a song title or artist + song title will insert the closest match to the song into 
-the queue and start playing it
+the queue and start playing it. More than 50 tracks can be loaded from the local library by using 
+library.randomQueueLimit in the settings.json file to set the maximum to a higher value.
 
 Examples:
 /Den/musicsearch/spotify/song/red+hot+chili+peppers
@@ -523,33 +548,8 @@ Examples:
 /Kitchen/musicsearch/library/load  (Loads or reloads the music library from Sonos)
 ```
 
-Each music service has a unique service ID and in some cases the service ID for a service may be different for a different region. The default values are for the US. If you are having a problem getting music to play for a service, try the following:
-
-
-```
-1. Add a song track from Spotify to your Sonos Favorites
-2. Look in your Sonos Favorites and note the exact spelling of how it was saved
-3. Invoke the URL .../YOUR_ROOM/musicsearch/{service}/setsid/EXACT_NAME_OF_SONG
-```
-
-The setsid command will read the service ID from the specified song, save your sids on disk in lib/sids.json with the updated service ID, and use these sid values from now on. Save and return the sids.json file when you update the api, or follow the same steps again.
-
 
 Experiment with these and leave feedback!
-
-Docker
--------
-
-** Docker is now an unsupported feature, no support is given **
-
-A docker file is included, make sure that if you use this that you start up your container with "--net=host" example:
-
-```
-docker run --net=host --restart=always -d <your container/image name>
-```
-
-The restart always is to keep it running after a reboot and to keep it alive it if crashes.
-More information for docker https://docs.docker.com
 
 Webhook
 -------
